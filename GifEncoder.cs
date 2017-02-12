@@ -148,16 +148,16 @@ namespace Mekanik.Windows
 			return @out;
 		}
 
-		public static Bitmap ImageToBitmapRgb(ImageSource _image)
-		{
-			Bitmap @out = new Bitmap(_image.Width, _image.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-			BitmapData bmData = @out.LockBits(new System.Drawing.Rectangle(0, 0, _image.Width, _image.Height), ImageLockMode.ReadWrite, @out.PixelFormat);
-			IntPtr pNative = bmData.Scan0;
-			System.Runtime.InteropServices.Marshal.Copy(_image.PixelBytesGbr, 0, pNative, _image.Width * _image.Height * 3);
-			@out.UnlockBits(bmData);
+		//public static Bitmap ImageToBitmapRgb(ImageSource _image)
+		//{
+		//	Bitmap @out = new Bitmap(_image.Width, _image.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+		//	BitmapData bmData = @out.LockBits(new System.Drawing.Rectangle(0, 0, _image.Width, _image.Height), ImageLockMode.ReadWrite, @out.PixelFormat);
+		//	IntPtr pNative = bmData.Scan0;
+		//	System.Runtime.InteropServices.Marshal.Copy(_image.PixelBytesGbr, 0, pNative, _image.Width * _image.Height * 3);
+		//	@out.UnlockBits(bmData);
 
-			return @out;
-		}
+		//	return @out;
+		//}
 
 		public static byte[] ImageToBytes(ImageSource _image)
 		{
@@ -167,12 +167,12 @@ namespace Mekanik.Windows
 			return @out;
 		}
 
-		public static byte[] ImageToBytesRgb(ImageSource _image)
-		{
-			Bitmap b = ImageToBitmapRgb(_image);
-			byte[] @out = b.GetBytes(ImageFormat.Png);
-			b.Dispose();
-			return @out;
-		}
+		//public static byte[] ImageToBytesRgb(ImageSource _image)
+		//{
+		//	Bitmap b = ImageToBitmapRgb(_image);
+		//	byte[] @out = b.GetBytes(ImageFormat.Png);
+		//	b.Dispose();
+		//	return @out;
+		//}
 	}
 }

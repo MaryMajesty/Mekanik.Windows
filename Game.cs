@@ -61,44 +61,46 @@ namespace Mekanik
 			set { this._GameWindow.WindowState = value ? WindowState.Maximized : WindowState.Normal; }
 		}
 		private bool _Fullscreen;
-		public bool Fullscreen
+
+		protected override bool _GetFullscreen()
 		{
-			get { return this._Fullscreen; }
+			return this._Fullscreen;
+		}
 
-			set
+		protected override void _SetFullscreen(bool _value)
+		{
+			if (_value != this._Fullscreen)
 			{
-				if (value != this._Fullscreen)
+				this._Fullscreen = _value;
+
+				if (_value)
 				{
-					this._Fullscreen = value;
+					this._MaximizedBeforeFullscreen = this.Maximized;
+					this.Maximized = false;
+					this._GameWindow.WindowBorder = WindowBorder.Hidden;
 
-					if (value)
-					{
-						this._MaximizedBeforeFullscreen = this.Maximized;
-						this.Maximized = false;
-						this._GameWindow.WindowBorder = WindowBorder.Hidden;
+					Mekanik.Windows.Screen s = this.CurrentScreen;
 
-						Mekanik.Windows.Screen s = this.CurrentScreen;
+					this._PositionBeforeFullscreen = this.Position;
+					this.Position = new Point((int)s.Rect.X, (int)s.Rect.Y);
 
-						this._PositionBeforeFullscreen = this.Position;
-						this.Position = new Point((int)s.Rect.X, (int)s.Rect.Y);
+					this._SizeBeforeFullscreen = this.Size;
+					this.Size = new Point((int)s.Rect.Width, (int)s.Rect.Height + 1);
 
-						this._SizeBeforeFullscreen = this.Size;
-						this.Size = new Point((int)s.Rect.Width, (int)s.Rect.Height + 1);
+					if (HideMouseOnFullscreen)
+						this.MouseStillCount = 60;
+				}
+				else
+				{
+					this.Size = this._SizeBeforeFullscreen;
+					this.Position = this._PositionBeforeFullscreen;
 
-						if (HideMouseOnFullscreen)
-							this.MouseStillCount = 60;
-					}
-					else
-					{
-						this.Size = this._SizeBeforeFullscreen;
-						this.Position = this._PositionBeforeFullscreen;
-
-						this.Maximized = this._MaximizedBeforeFullscreen;
-						this._GameWindow.WindowBorder = WindowBorder.Resizable;
-					}
+					this.Maximized = this._MaximizedBeforeFullscreen;
+					this._GameWindow.WindowBorder = WindowBorder.Resizable;
 				}
 			}
 		}
+
 		//private bool _IsFocused;
 		//public bool IsFocused
 		//{
@@ -166,7 +168,7 @@ namespace Mekanik
 			GameBase.GifUnuglify = cs => Mekanik.Windows.GifEncoder.Unuglify(cs);
 			GameBase.GifEncode = fs => Mekanik.Windows.GifEncoder.Encode(fs, 50);
 			GameBase.ImageToBytes = img => Mekanik.Windows.GifEncoder.ImageToBytes(img);
-			GameBase.ImageToBytesRgb = img => Mekanik.Windows.GifEncoder.ImageToBytesRgb(img);
+			//GameBase.ImageToBytesRgb = img => Mekanik.Windows.GifEncoder.ImageToBytesRgb(img);
 
 			this._GameWindow = this._GetWindow(_width, _height);
 			this.Title = "Mekanik Game";
@@ -222,7 +224,7 @@ namespace Mekanik
 				};
 
 			int runtime = 0;
-
+			
 			@out.UpdateFrame += (sender, args) =>
 				{
 					if (this._SkipUpdatesBeyond60 > 0)
@@ -318,7 +320,7 @@ namespace Mekanik
 				Renderer r = new Renderer(1, 1);
 				foreach (string folder in File.GetFolders(this.AreasetFolder))
 				{
-					Areaset a = new Areaset(folder, this.Tilesize, this.TileCollisionResolution);
+					Areaset a = new Areaset(folder, this.TileSize, this.TileCollisionResolution);
 					this.Areasets[a.Name] = a;
 					r.Draw(a.Tiles.Select(item => (Graphic)(new Image(item))));
 				}
@@ -408,7 +410,7 @@ namespace Mekanik
 			_settings.SaveToFile(this.Path + "\\Internal\\Settings.meka");
 		}
 		
-		public void Close()
+		public sealed override void Close()
 		{
 			this._Closed = true;
 			this._Closing = true;
